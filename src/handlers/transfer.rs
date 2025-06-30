@@ -7,20 +7,62 @@ use base64::Engine;
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::{ID, instruction::transfer};
 use solana_program::pubkey::Pubkey;
+use solana_program::system_instruction;
 
 use crate::{
     errors::ApiError,
-    models::transfer::{SendTokenRequest, SendTokenResponse, SendTokenData, AccountSignerInfo},
+    models::transfer::{SendTokenRequest, SendTokenResponse, SendTokenData, AccountSignerInfo, SendSolRequest, SendSolResponse, SendSolData},
 };
 
 /// POST /send/sol
-/// Builds a SOL transfer instruction
+/// Builds a SOL transfer instruction using the System program
 pub async fn send_sol(
-    Json(payload): Json<SendTokenRequest>
-) -> Result<Json<SendTokenResponse>, ApiError> {
-    // For SOL transfers, we'll use the same structure as token transfers
-    // but with a special mint address representing SOL
-    send_token(Json(payload)).await
+    Json(payload): Json<SendSolRequest>
+) -> Result<Json<SendSolResponse>, ApiError> {
+    // Validate inputs
+    if payload.from.is_empty() || payload.to.is_empty() {
+        return Err(ApiError::new(
+            StatusCode::BAD_REQUEST,
+            "Missing required fields: from, to",
+        ));
+    }
+
+    if payload.lamports == 0 {
+        return Err(ApiError::new(
+            StatusCode::BAD_REQUEST,
+            "Amount must be greater than 0",
+        ));
+    }
+
+    // Parse pubkeys
+    let from_pubkey = Pubkey::from_str(&payload.from)
+        .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `from` pubkey: {}", e)))?;
+    
+    let to_pubkey = Pubkey::from_str(&payload.to)
+        .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `to` pubkey: {}", e)))?;
+
+    // Build the SOL transfer instruction using System program
+    let instruction = system_instruction::transfer(&from_pubkey, &to_pubkey, payload.lamports);
+
+    // Base64-encode the instruction data
+    let instruction_data = STANDARD.encode(&instruction.data);
+
+    // Build response with account addresses as strings
+    let accounts = vec![
+        from_pubkey.to_string(),
+        to_pubkey.to_string(),
+    ];
+
+    let resp = SendSolResponse {
+        success: true,
+        data: SendSolData {
+            program_id: instruction.program_id.to_string(),
+            accounts,
+            instruction_data,
+        },
+    };
+
+    Ok(Json(resp))
 }
 
 /// POST /send/token
