@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize)]
 pub struct CreateTokenRequest {
     /// base58 pubkey of the mint authority
-    pub mint_authority: String,
+    pub mintAuthority: String,
     /// base58 pubkey of the new mint account
     pub mint: String,
     /// number of decimals

@@ -22,7 +22,7 @@ pub async fn create(
     // 1) Decode the base58 inputs
     let mint_pubkey = Pubkey::from_str(&payload.mint)
         .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `mint`: {}", e)))?;
-    let authority = Pubkey::from_str(&payload.mint_authority)
+    let authority = Pubkey::from_str(&payload.mintAuthority)
         .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `mintAuthority`: {}", e)))?;
 
     // 2) Build the instruction
