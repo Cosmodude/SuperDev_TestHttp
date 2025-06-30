@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 /// Request for POST /send/sol
 #[derive(Deserialize)]
 pub struct SendSolRequest {
-    /// Base58 “from” pubkey (sender)
+    /// Base58 "from" pubkey (sender)
     pub from: String,
-    /// Base58 “to” pubkey (recipient)
+    /// Base58 "to" pubkey (recipient)
     pub to: String,
     /// Amount in lamports
     pub lamports: u64,
@@ -38,7 +38,7 @@ pub struct SendTokenRequest {
     pub destination: String,
     /// Owner of the source token account (must sign)
     pub owner: String,
-    /// Amount in the mint’s smallest units
+    /// Amount in the mint's smallest units
     pub amount: u64,
 }
 
