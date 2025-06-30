@@ -10,7 +10,9 @@ async fn main() {
         .route("/token/create", post(handlers::token::create))
         .route("/token/mint", post(handlers::token::mint))
         .route("/message/sign", post(handlers::message::sign))
-        .route("/message/verify", post(handlers::message::verify)); 
+        .route("/message/verify", post(handlers::message::verify))
+        .route("/send/sol", post(handlers::transfer::send_sol))
+        .route("/send/token", post(handlers::transfer::send_token)); 
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     
