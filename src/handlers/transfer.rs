@@ -19,7 +19,6 @@ use crate::{
 pub async fn send_sol(
     Json(payload): Json<SendSolRequest>
 ) -> Result<Json<SendSolResponse>, ApiError> {
-    // Validate inputs
     if payload.from.is_empty() || payload.to.is_empty() {
         return Err(ApiError::new(
             StatusCode::BAD_REQUEST,
@@ -34,20 +33,16 @@ pub async fn send_sol(
         ));
     }
 
-    // Parse pubkeys
     let from_pubkey = Pubkey::from_str(&payload.from)
         .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `from` pubkey: {}", e)))?;
     
     let to_pubkey = Pubkey::from_str(&payload.to)
         .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `to` pubkey: {}", e)))?;
 
-    // Build the SOL transfer instruction using System program
     let instruction = system_instruction::transfer(&from_pubkey, &to_pubkey, payload.lamports);
 
-    // Base64-encode the instruction data
     let instruction_data = STANDARD.encode(&instruction.data);
 
-    // Build response with account addresses as strings
     let accounts = vec![
         from_pubkey.to_string(),
         to_pubkey.to_string(),
@@ -71,7 +66,6 @@ pub async fn send_sol(
 pub async fn send_token(
     Json(payload): Json<SendTokenRequest>
 ) -> Result<Json<SendTokenResponse>, ApiError> {
-    // 1) Parse all pubkeys
     let mint_pk = Pubkey::from_str(&payload.mint)
         .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `mint`: {}", e)))?;
     let owner_pk = Pubkey::from_str(&payload.owner)
@@ -79,11 +73,9 @@ pub async fn send_token(
     let dest_owner_pk = Pubkey::from_str(&payload.destination)
         .map_err(|e| ApiError::new(StatusCode::BAD_REQUEST, format!("invalid `destination`: {}", e)))?;
 
-    // 2) Derive associated token accounts
     let source_ata = get_associated_token_address(&owner_pk, &mint_pk);
     let dest_ata   = get_associated_token_address(&dest_owner_pk, &mint_pk);
 
-    // 3) Build the transfer instruction
     let instr = transfer(
         &ID,
         &source_ata,
@@ -93,17 +85,15 @@ pub async fn send_token(
         payload.amount,
     ).map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, format!("transfer failed: {}", e)))?;
 
-    // 4) Serialize account list
     let accounts = vec![
         AccountSignerInfo { pubkey: source_ata.to_string(), is_signer: false },
         AccountSignerInfo { pubkey: dest_ata.to_string(),   is_signer: false },
         AccountSignerInfo { pubkey: owner_pk.to_string(),  is_signer: true  },
     ];
 
-    // 5) Base64‐encode the instruction data
     let instruction_data = STANDARD.encode(&instr.data);
 
-    // 6) Return the JSON envelope
+    let resp = SendTokenResponse {
     let resp = SendTokenResponse {
         success: true,
         data: SendTokenData {

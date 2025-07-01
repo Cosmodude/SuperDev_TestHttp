@@ -51,7 +51,6 @@ pub async fn sign(
 pub async fn verify(
     Json(payload): Json<VerifyMessageRequest>
 ) -> Result<Json<VerifyMessageResponse>, ApiError> {
-    // Validate inputs
     if payload.message.is_empty() || payload.signature.is_empty() || payload.pubkey.is_empty() {
         return Err(ApiError::new(
             StatusCode::BAD_REQUEST,
@@ -74,7 +73,6 @@ pub async fn verify(
     sig_array.copy_from_slice(&sig_bytes);
     let signature = Signature::from(sig_array);
 
-    // Verify the signature using the correct method
     let valid = signature.verify(pubkey.to_bytes().as_ref(), payload.message.as_bytes());
 
     let data = VerifyMessageData {

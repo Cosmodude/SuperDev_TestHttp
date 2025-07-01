@@ -7,7 +7,7 @@ pub struct CreateTokenRequest {
     #[serde(rename = "mintAuthority")]
     pub mint_authority: String,
     /// base58 pubkey of the new mint account
-    pub mint: String,
+    pub mint: String, 
     /// number of decimals
     pub decimals: u8,
 }
@@ -49,7 +49,7 @@ pub struct CreateTokenResponse {
 pub struct MintTokenData {
     pub program_id: String,
     pub accounts: Vec<AccountMetaInfo>,
-    pub instruction_data: String, // base64
+    pub instruction_data: String, // base64-encoded
 }
 
 #[derive(Serialize)]
