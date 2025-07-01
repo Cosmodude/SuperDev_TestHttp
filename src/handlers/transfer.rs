@@ -94,7 +94,6 @@ pub async fn send_token(
     let instruction_data = STANDARD.encode(&instr.data);
 
     let resp = SendTokenResponse {
-    let resp = SendTokenResponse {
         success: true,
         data: SendTokenData {
             program_id: ID.to_string(),

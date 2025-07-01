@@ -14,13 +14,12 @@ pub async fn generate() -> Result<Json<KeypairResponse>, ApiError> {
     let secret_b58 = bs58::encode(secret_bytes).into_string();
 
     let resp = KeypairResponse {
-    let resp = KeypairResponse {
         success: true,
         data: KeypairData {
             pubkey: pubkey_b58,
             secret: secret_b58,
         },
     };
-
+    
     Ok(Json(resp))
 }

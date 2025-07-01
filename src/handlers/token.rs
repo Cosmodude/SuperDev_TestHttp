@@ -45,7 +45,6 @@ pub async fn create(
     let instruction_data = base64::engine::general_purpose::STANDARD.encode(instr.data);
 
     let resp = CreateTokenResponse {
-    let resp = CreateTokenResponse {
         success: true,
         data: CreateTokenData {
             program_id: instr.program_id.to_string(),
@@ -89,7 +88,6 @@ pub async fn mint(
 
     let instruction_data = base64::engine::general_purpose::STANDARD.encode(instr.data);
 
-    let resp = MintTokenResponse {
     let resp = MintTokenResponse {
         success: true,
         data: MintTokenData {
